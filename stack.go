@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const unknown = "unknown"
+
 type frame uintptr
 
 // pc program counter 返回该 frame 的程序计数器
@@ -18,7 +20,7 @@ func (f frame) pc() uintptr { return uintptr(f) - 1 }
 func (f frame) file() string {
 	fn := runtime.FuncForPC(f.pc())
 	if fn == nil {
-		return "unknown"
+		return unknown
 	}
 	file, _ := fn.FileLine(f.pc())
 	return file
@@ -38,7 +40,7 @@ func (f frame) line() int {
 func (f frame) name() string {
 	fn := runtime.FuncForPC(f.pc())
 	if fn == nil {
-		return "unknown"
+		return unknown
 	}
 	return fn.Name()
 }
@@ -90,7 +92,7 @@ func funcname(name string) string {
 // 输出与 fmt.Sprintf("%+v",f) 相同，但没有换行符或制表符。
 func (f frame) MarshalText() ([]byte, error) {
 	name := f.name()
-	if name == "unknown" {
+	if name == unknown {
 		return []byte(name), nil
 	}
 	return []byte(fmt.Sprintf("%s %s:%d", name, f.file(), f.line())), nil
